@@ -1,3 +1,3 @@
 # neuralnet-mcg
 
-Jupyter notebook with Mike Smith's thesis code.
+Jupyter notebook(s) with Mike Smith's thesis code.
