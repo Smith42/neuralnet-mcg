@@ -71,19 +71,19 @@ tflearn.initializations.normal()
 net = tflearn.layers.core.input_data(shape=[None, winWidth, 19, 17, 1])
 
 # First layer:
-#net = tflearn.layers.conv.conv_3d(net, 8, [5,5,5],  activation="leaky_relu")
-#net = tflearn.layers.conv.max_pool_3d(net, 2, strides=2)
+net = tflearn.layers.conv.conv_3d(net, 8, [5,5,5],  activation="leaky_relu")
+net = tflearn.layers.conv.max_pool_3d(net, 2, strides=2)
 
 # Second layer:
-#net = tflearn.layers.conv.conv_3d(net, 16, [5,5,5], activation="leaky_relu")
-#net = tflearn.layers.conv.max_pool_3d(net, 2, strides=2)
+net = tflearn.layers.conv.conv_3d(net, 16, [5,5,5], activation="leaky_relu")
+net = tflearn.layers.conv.max_pool_3d(net, 2, strides=2)
 
 # Fully connected layer
-#net = tflearn.layers.core.fully_connected(net, 1024, regularizer="L2", weight_decay=0.001, activation="leaky_relu")
+net = tflearn.layers.core.fully_connected(net, 1024, regularizer="L2", weight_decay=0.001, activation="leaky_relu")
 #net = tflearn.layers.core.fully_connected(net, 1024, regularizer="L2", weight_decay=0.001, activation="leaky_relu")
 
 # Dropout layer:
-#net = tflearn.layers.core.dropout(net, keep_prob=0.5)
+net = tflearn.layers.core.dropout(net, keep_prob=0.5)
 
 # Output layer:
 net = tflearn.layers.core.fully_connected(net, 2, activation="softmax")
