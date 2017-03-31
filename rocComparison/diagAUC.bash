@@ -1,8 +1,8 @@
 #!/bin/bash
 
-for i in {0..3}
+for i in {0..2}
 do 
-  for j in {0..9}
+  for j in {0..8}
   do
     echo $i $j
     python3 ./diagAUC.py $i $j

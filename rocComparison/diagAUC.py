@@ -47,15 +47,15 @@ except FileNotFoundError:
 try:
     spec
 except NameError:
-    spec = np.zeros(1)
+    spec = np.array([])
 try:
     sens
 except NameError:
-    sens = np.zeros(1)
+    sens = np.array([])
 try:
     auc
 except NameError:
-    auc = np.zeros(1)
+    auc = np.array([])
 
 subsamp = 40
 winWidth = 10 # Must be a factor of data length (2000) and even.
