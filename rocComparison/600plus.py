@@ -34,7 +34,7 @@ kfoldData = np.array_split(comData, k)
 kfoldLabelsOH = np.array_split(comClassOH, k)
 kfoldLabels = np.array_split(comClass, k)
 try:
-    spec, sens, auc = np.load("./mess.npy")
+    spec, sens, auc, roc = np.load("./mess.npy")
 except FileNotFoundError:
     print("./mess.npy not found. It will be created at the end of this pass")
     pass
@@ -52,6 +52,10 @@ try:
     auc
 except NameError:
     auc = np.array([])
+try:
+    roc
+except NameError:
+    roc = np.array([])
 
 subsamp = 2
 
@@ -63,19 +67,19 @@ tflearn.initializations.normal()
 net = tflearn.layers.core.input_data(shape=[None, 600, 19, 17, 1])
 
 # First layer:
-net = tflearn.layers.conv.conv_3d(net, 32, [5,5,5],  activation="leaky_relu")
-net = tflearn.layers.conv.max_pool_3d(net, 2, strides=2)
+#net = tflearn.layers.conv.conv_3d(net, 32, [5,5,5],  activation="leaky_relu")
+#net = tflearn.layers.conv.max_pool_3d(net, 2, strides=2)
 
 # Second layer:
-net = tflearn.layers.conv.conv_3d(net, 64, [5,5,5], activation="leaky_relu")
-net = tflearn.layers.conv.max_pool_3d(net, 2, strides=2)
+#net = tflearn.layers.conv.conv_3d(net, 64, [5,5,5], activation="leaky_relu")
+#net = tflearn.layers.conv.max_pool_3d(net, 2, strides=2)
 
 # Fully connected layer
-net = tflearn.layers.core.fully_connected(net, 1024, regularizer="L2", weight_decay=0.001, activation="leaky_relu")
+#net = tflearn.layers.core.fully_connected(net, 1024, regularizer="L2", weight_decay=0.001, activation="leaky_relu")
 #net = tflearn.layers.core.fully_connected(net, 1024, regularizer="L2", weight_decay=0.001, activation="leaky_relu")
 
 # Dropout layer:
-net = tflearn.layers.core.dropout(net, keep_prob=0.5)
+#net = tflearn.layers.core.dropout(net, keep_prob=0.5)
 
 # Output layer:
 net = tflearn.layers.core.fully_connected(net, 2, activation="softmax")
@@ -93,6 +97,7 @@ model.fit(dummyData, dummyLabels, batch_size=8, n_epoch=2, show_metric=True)
 # Get roc curve data
 predicted = np.array(model.predict(np.array(kfoldData[i])[:,800::subsamp]))
 auc = np.append(auc, roc_auc_score(kfoldLabels[i], predicted[:,1]))
+roc = np.append(roc, roc_curve(kfoldLabels[i], predicted[:,1]))
 
 illTest = []
 healthTest = []
@@ -108,5 +113,5 @@ illLabel = np.tile([0,1], (len(illTest), 1))
 sens = np.append(sens, model.evaluate(np.array(healthTest)[:,800::subsamp], healthLabel)[0])
 spec = np.append(spec, model.evaluate(np.array(illTest)[:,800::subsamp], illLabel)[0])
 
-print(spec, sens, auc)
-np.save("./mess.npy", (spec, sens, auc))
+print(spec, sens, auc, roc)
+np.save("./mess.npy", (spec, sens, auc, roc))
