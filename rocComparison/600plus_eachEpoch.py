@@ -14,6 +14,8 @@ from sklearn.metrics import roc_curve, roc_auc_score
 """
 k = 3
 i = int(sys.argv[1])
+ep = 2 # Number of epochs to train to
+
 comData = np.load("../inData/3D-conv/comData.npy")
 comClass = np.load("../inData/3D-conv/comClass.npy")
 
@@ -60,11 +62,11 @@ try:
     fpr
 except NameError:
     fpr = []
-try: 
+try:
     tpr
 except NameError:
     tpr = []
-
+  
 subsamp = 2
 
 sess = tf.InteractiveSession()
@@ -100,28 +102,31 @@ dummyData = np.reshape(np.concatenate(kfoldData[:i] + kfoldData[i+1:], axis=0), 
 dummyData = dummyData[:,800::subsamp]
 print(dummyData[0,:].shape)
 dummyLabels = np.reshape(np.concatenate(kfoldLabelsOH[:i] + kfoldLabelsOH[i+1:], axis=0), [-1, 2])
-model.fit(dummyData, dummyLabels, batch_size=8, n_epoch=2, show_metric=True)
 
-# Get roc curve data
-predicted = np.array(model.predict(np.array(kfoldData[i])[:,800::subsamp]))
-auc = np.append(auc, roc_auc_score(kfoldLabels[i], predicted[:,1]))
-tprd, fprd, th = roc_curve(kfoldLabels[i], predicted[:,1])
-tpr.append(tprd)
-fpr.append(fprd)
+for j in np.arange(0,ep,1):
+    model.fit(dummyData, dummyLabels, batch_size=8, n_epoch=1, show_metric=True)
+    
+    # Get roc curve data
+    predicted = np.array(model.predict(np.array(kfoldData[i])[:,800::subsamp]))
+    auc = np.append(auc, roc_auc_score(kfoldLabels[i], predicted[:,1]))
+    tprd, fprd, th = roc_curve(kfoldLabels[i], predicted[:,1])
+    tpr.append(tprd)
+    fpr.append(fprd)
 
-illTest = []
-healthTest = []
-for index, item in enumerate(kfoldLabels[i]):
-    if item == 1:
-        illTest.append(kfoldData[i][index])
-    if item == 0:
-        healthTest.append(kfoldData[i][index])
+    illTest = []
+    healthTest = []
+    for index, item in enumerate(kfoldLabels[i]):
+        if item == 1:
+            illTest.append(kfoldData[i][index])
+        if item == 0:
+            healthTest.append(kfoldData[i][index])
 
-healthLabel = np.tile([1,0], (len(healthTest), 1))
-illLabel = np.tile([0,1], (len(illTest), 1))
+    healthLabel = np.tile([1,0], (len(healthTest), 1))
+    illLabel = np.tile([0,1], (len(illTest), 1))
 
-sens = np.append(sens, model.evaluate(np.array(healthTest)[:,800::subsamp], healthLabel)[0])
-spec = np.append(spec, model.evaluate(np.array(illTest)[:,800::subsamp], illLabel)[0])
+    sens = np.append(sens, model.evaluate(np.array(healthTest)[:,800::subsamp], healthLabel)[0])
+    spec = np.append(spec, model.evaluate(np.array(illTest)[:,800::subsamp], illLabel)[0])
 
-print(spec, sens, auc)
+    print(spec, sens, auc)
+
 np.save("./mess.npy", (spec, sens, auc, [tpr], [fpr]))
