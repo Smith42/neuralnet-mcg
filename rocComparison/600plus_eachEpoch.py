@@ -12,9 +12,9 @@ from sklearn.metrics import roc_curve, roc_auc_score
 """
     argv is the kfold number.
 """
-k = 3
+k = 10
 i = int(sys.argv[1])
-ep = 2 # Number of epochs to train to
+ep = 4 # Number of epochs to train to
 
 comData = np.load("../inData/3D-conv/comData.npy")
 comClass = np.load("../inData/3D-conv/comClass.npy")
@@ -105,7 +105,6 @@ dummyLabels = np.reshape(np.concatenate(kfoldLabelsOH[:i] + kfoldLabelsOH[i+1:],
 
 for j in np.arange(0,ep,1):
     model.fit(dummyData, dummyLabels, batch_size=8, n_epoch=1, show_metric=True)
-    
     # Get roc curve data
     predicted = np.array(model.predict(np.array(kfoldData[i])[:,800::subsamp]))
     auc = np.append(auc, roc_auc_score(kfoldLabels[i], predicted[:,1]))
